@@ -29,11 +29,18 @@ bot.on("connected", function(address, port) {
 bot.on("chat", function(channel, sender, message, self) {
 	if (self) return
 
-	if(isBotUsername(sender.username) && !(sender.mod || sender.username === channel.substring(1))) {
-		for (let i = 0; i < repeatMessageSenders.length; i++) {
-			client.ban(channel, repeatMessageSenders[i], "Spam bot")
-		}
-	}
+	/* 
+	 * iterate through substrings of message and find out when the message repeats itself
+	 * check if one of the next two senders also sends some form of that repeated message
+	 * if so, add original sender and any followers to repeatMessageSenders
+	 * UNLESS sender.mod || sender.username === channel.substring(1)
+	 * then start banning people via setTimeout function I guess:
+	 * 
+	 * for (let i = 0; i < repeatMessageSenders.length; i++) {
+	 * 	   let currUser = repeatMessageSenders[i]
+	 *     if (isBotUsername(currUser)) client.ban(channel, currUser, "Spam bot")
+	 * }
+	 */
 })
 
 // let usernames = [/*first three are actual bot names*/ "noisyairfields539", "isolatedfeeds76", "frightenedounce7", "pdbz199"]

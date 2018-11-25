@@ -42,15 +42,20 @@ var findSmallestRepeat = (message) => {
 bot.on("chat", function(channel, sender, message, self) {
 	if (self) return
 
-	repeatMsg = findSmallestRepeat(message)
+	repeatMsg = findSmallestRepeat(message) // e.g. "AYAYA Clap" given "AYAYA Clap LUL GIT GUD AYAYA Clap LUL GIT GUD AYAYA Clap"
 	messages.push(repeatMsg)
+
+	// update how many times a repeated message has been put in chat
     if (messageCount.has(repeatMsg)) {
 		messageCount.set(repeatMsg, messageCount.get(repeatMsg) + 1)
 	} else {
 		messageCount.set(repeatMsg, 1)
 	}
+
+	// map current username to the current smallest repeat in their message
 	userMessage.set(sender.username, repeatMsg)
 
+	// handle more than 20 messages stored
     if (messages.length > 20) {
         if (messageCount.get(messages[0]) == 1) messageCount.delete(messages[0])
         else messageCount.set(messages[0], messageCount.get(messages[0] - 1))
@@ -65,6 +70,7 @@ bot.on("chat", function(channel, sender, message, self) {
 		}
 	})
 
+	// when the message array is full, make appropriate bans and start over
 	if (messages.length == 20) {
 		repeatingMsgUsers.map(username => {
 			client.ban(channel, username, "Spam bot")

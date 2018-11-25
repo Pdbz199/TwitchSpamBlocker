@@ -1,7 +1,5 @@
 var tmi = require("tmi.js")
 var isBotUsername = require("./checkUsername.js")
-var repeatMessageSenders = []
-var repeatMessages = new Map()
 
 //BOT CONFIG
 var options = {
@@ -26,21 +24,54 @@ bot.on("connected", function(address, port) {
     bot.say("#pdbz199", "The bot has been activated!")
 })
 
+
+var messages = []
+var repeatingMsgUsers = []
+var messageCount = new Map()
+var userMessage = new Map()
+var findSmallestRepeat = (message) => {
+	let returnMsg = ""
+    for (let i = 0; i < message.length; i++) {
+        returnMsg = message.substring(0, i+1)
+        if (returnMsg === message.substring(message.length - returnMsg.length)) break
+	}
+	
+	return repeatMsg
+}
+
 bot.on("chat", function(channel, sender, message, self) {
 	if (self) return
 
-	/* 
-	 * iterate through substrings of message and find out when the message repeats itself
-	 * check if one of the next two senders also sends some form of that repeated message
-	 * if so, add original sender and any followers to repeatMessageSenders
-	 * UNLESS sender.mod || sender.username === channel.substring(1)
-	 * then start banning people via setTimeout function I guess:
-	 * 
-	 * for (let i = 0; i < repeatMessageSenders.length; i++) {
-	 * 	   let currUser = repeatMessageSenders[i]
-	 *     if (isBotUsername(currUser)) client.ban(channel, currUser, "Spam bot")
-	 * }
-	 */
-})
+	repeatMsg = findSmallestRepeat(message)
+	messages.push(repeatMsg)
+    if (messageCount.has(repeatMsg)) {
+		messageCount.set(repeatMsg, messageCount.get(repeatMsg) + 1)
+	} else {
+		messageCount.set(repeatMsg, 1)
+	}
+	userMessage.set(sender.username, repeatMsg)
 
-// let usernames = [/*first three are actual bot names*/ "noisyairfields539", "isolatedfeeds76", "frightenedounce7", "pdbz199"]
+    if (messages.length > 20) {
+        if (messageCount.get(messages[0]) == 1) messageCount.delete(messages[0])
+        else messageCount.set(messages[0], messageCount.get(messages[0] - 1))
+        messages.shift()
+	}
+	
+	messageCount.forEach(msg => {
+		if (msg >= 8) {
+			userMessage.forEach((value, key) => {
+				if (value === msg && isBotUsername(key)) repeatingMsgUsers.push(key)
+			})
+		}
+	})
+
+	if (messages.length == 20) {
+		repeatingMsgUsers.map(username => {
+			client.ban(channel, username, "Spam bot")
+		})
+		messages = []
+		repeatingMsgUsers = []
+		messageCount.clear()
+		userMessage.clear()
+	}
+})

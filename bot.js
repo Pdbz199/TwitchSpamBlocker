@@ -13,7 +13,7 @@ var options = {
 		username : "SpamBlocker2",
 		password : "oauth:j4mtn62qgo0az6d9yrnzwe8swhc2m3"
 	},
-	channels : ["#pdbz199"]
+	channels : ["#nairomk"]
 }
 
 var bot = new tmi.client(options)
@@ -36,7 +36,7 @@ var findSmallestRepeat = (message) => {
         if (returnMsg === message.substring(message.length - returnMsg.length)) break
 	}
 	
-	return repeatMsg
+	return returnMsg
 }
 
 bot.on("chat", function(channel, sender, message, self) {

@@ -73,7 +73,8 @@ bot.on("chat", function(channel, sender, message, self) {
 	// when the message array is full, make appropriate bans and start over
 	if (messages.length == 20) {
 		repeatingMsgUsers.map(username => {
-			client.ban(channel, username, "Spam bot")
+			console.log("Should ban " + username)
+			// client.ban(channel, username, "Spam bot")
 		})
 		messages = []
 		repeatingMsgUsers = []
